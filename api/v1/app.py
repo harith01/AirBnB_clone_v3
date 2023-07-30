@@ -10,10 +10,12 @@ from models import storage
 app = Flask(__name__)
 app.register_blueprint(app_views)
 
+
 @app.teardown_appcontext
 def teardown_appcontext(code):
     """Teardown Appcontext"""
     storage.close()
+
 
 if __name__ == "__main__":
     app.run(host=os.getenv('HBNB_API_HOST', '0.0.0.0'),
