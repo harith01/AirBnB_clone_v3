@@ -2,30 +2,32 @@
 """view for States that handle all default
 RESTFul API actions"""
 
-import storage
+from models import storage
 from api.v1.views import app_views
-from flask import jsonify, abort, request
+from flask import jsonify, abort, request, make_response
+from models.state import State
 
-@app_views.route('/states', method=['GET'])
+
+@app_views.route('/states', methods=['GET'], strict_slashes=False)
 def get_states():
     """Retrieves the list of allState Objects"""
     states = []
     for state in storage.all("State").values():
         states.append(state.to_dict())
-        return jsonify(states)
+    return jsonify(states)
 
-@app_views.route('/states/<string:state_id>', method=['GET'],
+@app_views.route('/states/<string:state_id>', methods=['GET'],
    strict_slashes=False)
-def get_state():
+def get_state(state_id):
     """Retrieves a State object with the corresponding state_id"""
-    for state in storage.all("State").values():
-        if state.id == state_id:
-            return jsonify(state.to_dict())
-    abort(404)
+    state = storage.get("State", state_id)
+    if state is None:
+        abort(404)
+    return jsonify(state.to_dict())
 
-@app_views.route('/states/<string:state_id>', method=['DELETE'],
+@app_views.route('/states/<string:state_id>', methods=['DELETE'],
    strict_slashes=False)
-def delete_state():
+def delete_state(state_id):
     """Delete State with object having state_id"""
     state = storage.get("State", state_id)
     if state is None:
@@ -34,7 +36,7 @@ def delete_state():
     storage.save()
     return (jsonify({}))
 
-@app_views.route('/states', method=['POST'], strict_slashes=False)
+@app_views.route('/states/', methods=['POST'], strict_slashes=False)
 def post_state():
     """Post State object"""
     if not request.get_json():
@@ -46,8 +48,8 @@ def post_state():
     return make_response(jsonify(state.to_dict()), 201)
 
 @app_views.route('/states/<string:state_id>', strict_slashes=False,
-   method=['PUT'])
-def update_state():
+   methods=['PUT'])
+def update_state(state_id):
     """Update a State object"""
     state = storage.get("State", state_id)
     if state is None:
