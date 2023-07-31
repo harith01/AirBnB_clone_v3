@@ -75,8 +75,10 @@ class DBStorage:
         """Retrieve object"""
         if cls is not None and cls in classes and type(cls) is str\
 	   and id is not None and type(id) is str:
-            obj = self.__session.query(classes[cls]).filter(cls.id == id).first()
-            return obj
+            objs = self.all(cls).values()
+            for obj in objs:
+                if obj.id == id:
+                    return obj
 
     def count(self, cls=None):
         """Count the number of objects in storage matching the class"""
